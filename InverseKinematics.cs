@@ -32,9 +32,12 @@ public class InverseKinematics : MonoBehaviour
     private Vector2 lastPos;
     [SerializeField] LayerMask floorLayer;
 
+
+    private Rigidbody2D rb;
     // Start is called before the first frame update
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
         float y2 = bodyHeight * bodyHeight;
         float h2 = legLength * legLength;
 
@@ -49,7 +52,7 @@ public class InverseKinematics : MonoBehaviour
 
     IEnumerator WaitSecondLeg()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(.5f);
         FindFootPos2();
         animate = true;
     }
@@ -110,7 +113,8 @@ public class InverseKinematics : MonoBehaviour
         float speed = Mathf.Abs(transform.position.x - lastPos.x);
 
 
-        if (Vector2.Distance(transform.position, footTarget) > 1.5f * legLength)
+   
+        if (Mathf.Abs(transform.position.x - footTarget.x) > (x * .75f))
         {
             if (returningOne)
             {
@@ -126,9 +130,10 @@ public class InverseKinematics : MonoBehaviour
         {
             footTarget.x += speed * 2;
         }
-        Debug.Log(returningOne);
 
-        if (Vector2.Distance(transform.position, footTarget2) > 1.5f * legLength)
+     
+
+        if (Mathf.Abs(transform.position.x - footTarget2.x) >= (x * .75f))
         {
             if (returningTwo)
             {
@@ -152,7 +157,7 @@ public class InverseKinematics : MonoBehaviour
     {
         findPos = false;
 
-        Vector2 pos = new(transform.position.x + (x * .75f), transform.position.y - bodyHeight);
+        Vector2 pos = new(transform.position.x + (x * .75f * rb.velocity.normalized.x), transform.position.y - bodyHeight);
         Vector2 thisPosition = transform.position;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, pos - thisPosition, Mathf.Infinity, floorLayer);
 
@@ -179,7 +184,7 @@ public class InverseKinematics : MonoBehaviour
     {
         findPos2 = false;
 
-        Vector2 pos2 = new(transform.position.x + (x * .75f), transform.position.y - bodyHeight);
+        Vector2 pos2 = new(transform.position.x + (x * .75f * rb.velocity.normalized.x), transform.position.y - bodyHeight);
         footTarget2 = pos2;
         Instantiate(posObject2, pos2, Quaternion.identity);
     }
